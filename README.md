@@ -2,7 +2,8 @@
 iWISDM, short for instructed-Virtual VISual Decision Making, is a virtual environment capable of generating a limitless array of _vision-language tasks with varying complexity_. iWISDM encompasses a broad spectrum of tasks that engage executive functions such as inhibition of action, working memory, attentional set, task switching, and schema generalization. It is also a scalable and extensible framework which allows users to easily define their own task space and stimuli dataset. iWISDM builds on the compositional nature of human behavior, and the fact that complex tasks are often constructed by combining smaller task units together in time.
 
 Below is an example of the generated tasks:
-![202402_multfs_trial_example_high](https://github.com/BashivanLab/iWISDM/assets/44264329/f2160daf-106c-433f-a078-a9be9231f9fe)
+<img width="829" alt="Screenshot 2024-06-24 at 8 43 41 PM" src="https://github.com/BashivanLab/iWISDM/assets/44264329/5f7eeffe-a3be-405f-8514-6424818cf5b7">
+
 
 iWISDM inherits several classes from COG (https://github.com/google/cog) to build task graphs. For convenience, we have pre-implemented several commonly used cognitive tasks in task_bank.py. 
 
@@ -14,7 +15,7 @@ Additionally, for convenience, we have pre-generated four benchmarks of increase
 
 These datasets can be generated from [/benchmarking](https://github.com/BashivanLab/iWISDM/tree/main/benchmarking) or downloaded: [iWISDM_benchsets.tar.gz](https://drive.google.com/file/d/1K-9AAJfvz6kiN3h9X2Rg0D88gJQ_rxSu/view?usp=sharing)
 
-### For further details, please refer to (https://arxiv.org/submit/5678755/view)
+### For further details, please refer to [(https://arxiv.org/submit/5678755/view)](https://arxiv.org/abs/2406.14343)
 
 # Usage
 ### Install Instructions
@@ -23,20 +24,15 @@ These datasets can be generated from [/benchmarking](https://github.com/Bashivan
 - [Install graphiz on your machine](https://pygraphviz.github.io/documentation/stable/install.html)
 ### Poetry
 #### Install Poetry
-
 ```shell
 curl -sSL https://install.python-poetry.org | python3 -
 ```
-
 ### Conda + Poetry
 #### Create conda python environment
-
 ```shell
 conda create --name iwisdm python=3.11
 ```
-
 #### Install packages
-
 ```shell
 poetry install
 ```
@@ -73,5 +69,6 @@ read_write.write_trial(imgs, info_dict, f'output/trial_{i}')
 #### See [/tutorials](https://github.com/BashivanLab/iWISDM/tree/main/tutorials) for more examples.
 
 ### Acknowledgements
-- COG - paper
-- Thank funders?
+This repository builds upon the foundational work presented in the COG paper (https://arxiv.org/abs/1803.06092).
+
+Yang, Guangyu Robert, et al. "A dataset and architecture for visual reasoning with a working memory." Proceedings of the European Conference on Computer Vision (ECCV). 2018.
