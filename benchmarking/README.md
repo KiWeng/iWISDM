@@ -68,25 +68,31 @@ python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./t
    a. 1frame with distractor. Report object category
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/spatial_attn_1_frame' --trials_dir='temp/spatial_attn_1_frame' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance --n_distractor_frame=1
     ```
    b. 2frame tasks with distractors on both. The tasks are based on category (or identity) information, so objects are
    identified by their location information where instruction specifies which object on each frame is to be attended to
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/spatial_attn_2_frame' --trials_dir='temp/spatial_attn_2_frame' --config_path='configs/low_complexity_cat.json' --min_len=2 --max_len=2 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=1 --force_balance --n_distractor_frame=2
     ```
 5. Feature attention: similar to above but the tasks are based on location information, so objects are identified by
    their category information
+   a. 1 frame
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/feature_attn_1_frame' --trials_dir='temp/feature_attn_1_frame' --config_path='configs/single_frame_loc.json' --min_len=1 --max_len=1 --n_trials=10 --n_tasks=10 --features='loc' --min_joint_ops=0 --max_joint_ops=0 --force_balance --n_distractor_frame=1
+    ```
+   b. 2 frame
+    ```shell
+    conda activate iwisdm
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/feature_attn_2_frame' --trials_dir='temp/feature_attn_2_frame' --config_path='configs/low_complexity_loc.json' --min_len=2 --max_len=2 --n_trials=10 --n_tasks=10 --features='loc' --min_joint_ops=0 --max_joint_ops=1 --force_balance --n_distractor_frame=2
     ```
 6. Temporal attention: 2 frames or more.
    a. 1frame decisions: report of object property (location or category) when there are other distractor frames
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/temp_attn_1_frame_cat' --trials_dir='temp/temp_attn_1_frame_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance --n_distractor_time=1
     ```
    b. 2frame decisions: comparison between two objects when there are other distractor frames (location, category,
    identity)

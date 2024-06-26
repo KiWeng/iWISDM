@@ -12,26 +12,35 @@ from wisdom import make
 from wisdom import read_write
 import wisdom.envs.shapenet.task_generator as tg
 
+
 def create_task(env):
     _, (_, task) = env.generate_tasks()[0]
 
     return task
 
-def generate_trial(env, task, mode):
-    trials = env.generate_trials(tasks=[task], mode=mode,)
+
+def generate_trial(env, task, mode, add_distractor_frame,  add_distractor_time):
+    trials = env.generate_trials(
+        tasks=[task], mode=mode,
+        add_distractor_frame=add_distractor_frame,
+        add_distractor_time=add_distractor_time
+    )
     imgs, _, info_dict = trials[0]
     instructions = info_dict['instruction']
     answer = info_dict['answers']
 
     return imgs, instructions, answer[-1], info_dict
 
+
 def store_task(task, fp):
     read_write.write_task(task, fp)
+
 
 def duplicate_check(current_instructions, instruction):
     if instruction in current_instructions:
         return True
     return False
+
 
 def load_stored_tasks(fp, mode):
     ts = []
@@ -41,12 +50,14 @@ def load_stored_tasks(fp, mode):
     for task_fp in os.listdir(fp):
         task = tg.read_task(os.path.join(fp, task_fp))
 
-        _, instructions, answer, _ = generate_trial(env, task, mode)
+        # TODO: distractor is 0?
+        _, instructions, answer, _ = generate_trial(env, task, mode, add_distractor_time=0, add_distractor_frame=0)
         ins.append(instructions)
         ts.append(task)
         anss.append(answer)
 
     return ts, ins, anss
+
 
 def create_tasks(env, track_tf, **kwargs):
     total_and = 0
@@ -54,7 +65,7 @@ def create_tasks(env, track_tf, **kwargs):
     total_not = 0
 
     # Load tasks if they exist
-    if os.listdir(kwargs['tasks_dir']) != []:
+    if os.listdir(kwargs['tasks_dir']):
         tasks, task_ins, answers = load_stored_tasks(kwargs['tasks_dir'], mode='train' if kwargs['train'] else 'val')
         for ins, task, ans in zip(task_ins, tasks, answers):
             total_and += ins.count(' and ')
@@ -75,20 +86,23 @@ def create_tasks(env, track_tf, **kwargs):
         print('task.n_frames: ', task.n_frames)
 
         # Check if task meets length requirements
-        if  kwargs['min_len'] <= task.n_frames <= kwargs['max_len']:
+        if kwargs['min_len'] <= task.n_frames <= kwargs['max_len']:
             print('between min_len and max_len')
 
-            imgs, instructions, answer, info_dict = generate_trial(env, task,
-                                                                   mode='train' if kwargs['train'] else 'val')
+            imgs, instructions, answer, info_dict = generate_trial(
+                env, task, mode='train' if kwargs['train'] else 'val',
+                add_distractor_frame=kwargs['n_distractor_frame'],
+                add_distractor_time=kwargs['n_distractor_time']
+            )
             n_and = instructions.count(' and ')
             n_or = instructions.count(' or ')
 
             print(n_and, n_or)
-            
+
             # Check if task meets joint operator requirements
             if kwargs['min_joint_ops'] <= (n_and + n_or) <= kwargs['max_joint_ops']:
                 print('under bool op limit')
-                
+
                 n_delay = task.n_frames - instructions.count('observe')
 
                 # Check if task meets delay frame requirements
@@ -110,17 +124,25 @@ def create_tasks(env, track_tf, **kwargs):
                                 total_not += instructions.count(' not ')
                                 task_ins.append(instructions)
 
-                                store_task(task, kwargs['tasks_dir'] + '/' + str(len(tasks)) + '.json')
+                                store_task(
+                                    task,
+                                    f"{kwargs['tasks_dir']}/{str(len(tasks))}.json")
 
                                 info_dicts = []
                                 t_per_t = kwargs['n_trials']//kwargs['n_tasks']
-                                i = t_per_t 
+                                i = t_per_t
 
                                 while i > 0:
-                                    imgs, _, _, info_dict = generate_trial(env, task, mode='train' if kwargs['train'] else 'val')
+                                    imgs, _, _, info_dict = generate_trial(
+                                        env, task,
+                                        mode='train' if kwargs['train'] else 'val',
+                                        add_distractor_frame=kwargs['n_distractor_frame'],
+                                        add_distractor_time=kwargs['n_distractor_time']
+                                    )
                                     if info_dict not in info_dicts:
-                                        read_write.write_trial(imgs, info_dict, os.path.join(kwargs['trials_dir'], 'trial' + 
-                                                                                             str(len(tasks) * t_per_t + t_per_t - i)))
+                                        read_write.write_trial(
+                                            imgs, info_dict, os.path.join(
+                                                kwargs['trials_dir'], 'trial' + str(len(tasks) * t_per_t + t_per_t - i)))
                                         info_dicts.append(info_dict)
                                         i -= 1
                                 tasks.append(task)
@@ -140,10 +162,14 @@ def create_tasks(env, track_tf, **kwargs):
                             i = t_per_t
 
                             while i > 0:
-                                imgs, _, _, info_dict = generate_trial(env, task, mode='train' if kwargs['train'] else 'val')
+                                imgs, _, _, info_dict = generate_trial(
+                                    env, task, mode='train' if kwargs['train'] else 'val',
+                                    add_distractor_frame=kwargs['n_distractor_frame'],
+                                    add_distractor_time=kwargs['n_distractor_time']
+                                )
 
                                 if info_dict not in info_dicts:
-                                    read_write.write_trial(imgs, info_dict, os.path.join(kwargs['trials_dir'], 'trial' + 
+                                    read_write.write_trial(imgs, info_dict, os.path.join(kwargs['trials_dir'], 'trial' +
                                                                                          str(len(tasks) * t_per_t + t_per_t - i)))
                                     info_dicts.append(info_dict)
                                     i -= 1
@@ -184,6 +210,8 @@ if __name__ == '__main__':
     parser.add_argument('--max_joint_ops', type=int, default=2)
     parser.add_argument('--force_balance', action='store_true', default=False)
     parser.add_argument('--non_bool_actions', action='store_true', default=False)
+    parser.add_argument('--n_distractor_frame', type=int, default=0)
+    parser.add_argument('--n_distractor_time', type=int, default=0)
     args = parser.parse_args()
 
     print(args)
@@ -198,7 +226,7 @@ if __name__ == '__main__':
 
     # Load config
     config = json.load(open(args.config_path))
-    
+
     # Create environment
     env = make(
         env_id='ShapeNet',
@@ -253,6 +281,7 @@ if __name__ == '__main__':
 
     print('n_trials:', args.n_trials)
     print('n_tasks:', args.n_tasks)
+    print('n_distractors:', args.n_distractor_time)
 
     print('total:', len(create_tasks(env, track_tf, **vars(args))[0]))
 
