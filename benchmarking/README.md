@@ -34,24 +34,25 @@ python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./t
    a. 1frame tasks: report of object property after delay (location or category)
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/memory_1_frame' --trials_dir='temp/memory_1_frame' --config_path='configs/single_frame_cat.json' --min_len=3 --max_len=10 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
     ```
    b. 2frame tasks: compare two object properties with delay either in between or afterward (location, category,
    identity)
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/memory_2_frame' --trials_dir='temp/memory_2_frame' --config_path='configs/low_complexity_cat.json' --min_len=3 --max_len=10 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
     ```
+    *the max_joint_ops may should be set to 0 to avoid and, or in the instructions*
 2. Object localization:
    a. 1frame: report location
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/localization_1_frame' --trials_dir='temp/localization_1_frame' --config_path='configs/single_frame_loc.json' --min_len=1 --max_len=1 --n_trials=10 --n_tasks=10 --features='loc' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/localization_1_frame' --trials_dir='temp/localization_1_frame' --config_path='configs/high_complexity_loc_noswitch.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='loc' --min_joint_ops=0 --max_joint_ops=0 --non_bool_actions
     ```
    b. 2frames: comparison based on location
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/localization_2_frame' --trials_dir='temp/localization_2_frame' --config_path='configs/low_complexity_loc.json' --min_len=2 --max_len=2 --n_trials=10 --n_tasks=10 --features='loc' --min_joint_ops=0 --max_joint_ops=1 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/localization_2_frame' --trials_dir='temp/localization_2_frame' --config_path='configs/low_complexity_loc.json' --min_len=2 --max_len=2 --n_trials=10 --n_tasks=1 --features='loc' --min_joint_ops=0 --max_joint_ops=1 --force_balance
     ```
 3. Object categorization: similar to above but based on category  
    a. 1frame: report category
@@ -92,19 +93,19 @@ python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./t
    a. 1frame decisions: report of object property (location or category) when there are other distractor frames
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/temp_attn_1_frame_cat' --trials_dir='temp/temp_attn_1_frame_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance --n_distractor_time=1
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/temporal_attn_1_frame_cat' --trials_dir='temp/temporal_attn_1_frame_cat' --config_path='configs/single_frame_cat.json' --min_len=2 --max_len=2 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance --n_distractor_time=1
     ```
    b. 2frame decisions: comparison between two objects when there are other distractor frames (location, category,
    identity)
     ```shell
     conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/temporal_attn_2_frame_cat' --trials_dir='temp/temporal_attn_2_frame_cat' --config_path='configs/low_complexity_cat.json' --min_len=6 --max_len=10 --n_trials=10 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=1 --force_balance --n_distractor_time=2
     ```
 7. Logical reasoning: similar to main iwisdm assessments where we generate random tasks and categorize them to levels of
    complexity according to factors such as number of frames, number of operations, number of switches etc (refer to
    iwisdm paper)
    (probably version with image&without image
     ```shell
-    conda activate iwisdm
-    python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/single_cat' --trials_dir='temp/single_cat' --config_path='configs/single_frame_cat.json' --min_len=1 --max_len=1 --n_trials=100 --n_tasks=10 --features='cat' --min_joint_ops=0 --max_joint_ops=0 --force_balance
+   conda activate iwisdm
+   python create_bench.py --stim_dir='../data/shapenet_handpicked' --tasks_dir='./tasks/logical' --trials_dir='temp/logical' --config_path='configs/high_complexity_all.json' --min_len=9 --max_len=9 --n_trials=10 --n_tasks=10 --features='all' --min_joint_ops=1 --max_joint_ops=2 --force_balance --non_bool_actions
     ```
