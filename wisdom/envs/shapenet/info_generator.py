@@ -100,7 +100,8 @@ class FrameInfo(object):
         frame.relative_tasks.add(-1)
         if not description:
             description = 'distractor'
-        frame.description.append(description)
+        if description not in frame.description:
+            frame.description.append(description)
         self.objset.add(
             obj=distractor,
             epoch_now=len(self.frame_list) - 1,
@@ -324,18 +325,22 @@ class TaskInfoCompo(object):
         if changed:
             # update objset based on existing objects, guess_objset resolves conflicts
             new_objset = new_task_copy.guess_objset(objset, new_task_copy.n_frames - 1)
-            updated_fi = FrameInfo(new_task_copy, new_objset)  # initialize new frame info based on updated objset
+            updated_fi = FrameInfo(new_task_copy,
+                                   new_objset)  # initialize new frame info based on updated objset
             FrameInfo.update_relative_tasks(updated_fi, relative_tasks={new_task_idx})
-            for i, (old_frame, new_frame) in enumerate(zip(self.frame_info[start_frame_idx:], updated_fi)):
+            for i, (old_frame, new_frame) in enumerate(
+                    zip(self.frame_info[start_frame_idx:], updated_fi)):
                 old_frame.compatible_merge(new_frame)  # update frame information
 
             self.changed.append((new_task_idx, new_task, new_task_copy))
-            self.task_objset[new_task_idx] = new_objset  # update the per task objset dictionary
+            self.task_objset[
+                new_task_idx] = new_objset  # update the per task objset dictionary
         else:
             for i, (old_frame, new_frame) in enumerate(
                     zip(self.frame_info[start_frame_idx:], new_task_info.frame_info)):
                 old_frame.compatible_merge(new_frame)
-            self.task_objset[new_task_idx] = new_task_info.task_objset[0]  # update the per task objset dictionary
+            self.task_objset[new_task_idx] = new_task_info.task_objset[
+                0]  # update the per task objset dictionary
         self.tasks.append(new_task)
         return
 
@@ -343,7 +348,8 @@ class TaskInfoCompo(object):
         assert isinstance(task_info1, TaskInfoCompo)
         assert isinstance(task_info2, TaskInfoCompo)
 
-        if any(task.is_bool_output() for task in [self.tasks[-1], task_info1.tasks[-1], task_info2.tasks[-1]]):
+        if any(task.is_bool_output() for task in
+               [self.tasks[-1], task_info1.tasks[-1], task_info2.tasks[-1]]):
             raise ValueError('Switch tasks must have boolean outputs')
 
         self.tempo_dict['self'] = self.get_task_info_dict()[1]
@@ -362,7 +368,8 @@ class TaskInfoCompo(object):
         return
 
     def get_obj_info_dict(self):
-        obj_info = defaultdict(list)  # key: epoch, value: list of dictionary of object info
+        obj_info = defaultdict(
+            list)  # key: epoch, value: list of dictionary of object info
         count = 0
         for epoch, objs in sorted(self.frame_info.objset.dict.items()):
             num_objs = len(objs)
@@ -376,7 +383,8 @@ class TaskInfoCompo(object):
                 info['count'] = count
                 info['obj'] = obj
                 info['tasks'] = set()  # tasks that involve the stim
-                info['attended_attr'] = defaultdict(set)  # key: task, value: attribute of the stim that are relevant
+                info['attended_attr'] = defaultdict(
+                    set)  # key: task, value: attribute of the stim that are relevant
                 obj_info[epoch].append(info)
         return obj_info
 
@@ -433,7 +441,9 @@ class TaskInfoCompo(object):
                         k = int(re.search(r'\d+', lastk.group()).group())
                         i = epoch - k
                         relative_i = frame.relative_task_epoch_idx[task_idx] - k
-                        match = self.compare_objs(obj_info[i], self.task_objset[task_idx].dict[relative_i])
+                        match = self.compare_objs(obj_info[i],
+                                                  self.task_objset[task_idx].dict[
+                                                      relative_i])
                         if match:
                             task_instruction = re.sub(
                                 f'last{k}.*?object',
@@ -441,7 +451,8 @@ class TaskInfoCompo(object):
                                 task_instruction
                             )
                             match['tasks'].add(task_idx)
-                            match['attended_attr'][task_idx] = match['attended_attr'][task_idx].union(
+                            match['attended_attr'][task_idx] = match['attended_attr'][
+                                task_idx].union(
                                 self.tasks[task_idx].get_relevant_attribute(f'last{k}'))
                             cur += 1
                         else:
@@ -455,9 +466,11 @@ class TaskInfoCompo(object):
                         # then add the conditional texts in the instruction
                         if epoch == len(self.tempo_dict['self']['answers']) - 1:
                             compo_instruction += ' if end of compo task 1 is true, then do compo task 2: '
-                            compo_instruction += self.object_add(self.tempo_dict['task1']['instruction'], cur)
+                            compo_instruction += self.object_add(
+                                self.tempo_dict['task1']['instruction'], cur)
                             compo_instruction += 'otherwise, do compo task 3: '
-                            compo_instruction += self.object_add(self.tempo_dict['task2']['instruction'], cur)
+                            compo_instruction += self.object_add(
+                                self.tempo_dict['task2']['instruction'], cur)
                             return compo_instruction, obj_info
             if add_delay and not was_delay:
                 compo_instruction += 'delay, '
@@ -475,14 +488,17 @@ class TaskInfoCompo(object):
             ending = False
             for d in frame.description:  # see frame_info init
                 if 'ending' in d:  # if the frame is the end of any individual task
-                    task_idx = int(re.search(r'\d+', d).group())  # get which task is ending
-                    answers.append(examples[task_idx]['answers'][0])  # add the task answer
+                    task_idx = int(
+                        re.search(r'\d+', d).group())  # get which task is ending
+                    answers.append(
+                        examples[task_idx]['answers'][0])  # add the task answer
                     ending = True
             if not ending:
                 answers.append('null')
         return answers
 
-    def get_task_info_dict(self, is_instruction=True, external_instruction=None) -> Tuple[List[Dict], Dict]:
+    def get_task_info_dict(self, is_instruction=True, external_instruction=None) -> Tuple[
+        List[Dict], Dict]:
         """
         get task examples
         :return: tuple of list of dictionaries containing information about the requested tasks
@@ -497,7 +513,8 @@ class TaskInfoCompo(object):
                 'epochs': int(task.n_frames),
                 'question': str(task),
                 'objects': [o.dump() for o in self.task_objset[i]],
-                'answers': [str(env_reg.get_target_value(t)) for t in task.get_target(self.task_objset[i])],
+                'answers': [str(env_reg.get_target_value(t)) for t in
+                            task.get_target(self.task_objset[i])],
                 'first_shareable': int(task.first_shareable),
             })
 
@@ -508,7 +525,8 @@ class TaskInfoCompo(object):
                 for info_dict in sorted(info_dicts, key=lambda x: x['count']):
                     info_dict['obj'] = info_dict['obj'].dump()
                     info_dict['tasks'] = list(info_dict['tasks'])
-                    info_dict['attended_attr'] = {k: list(v) for k, v in info_dict['attended_attr'].items()}
+                    info_dict['attended_attr'] = {k: list(v) for k, v in
+                                                  info_dict['attended_attr'].items()}
                     objs.append(info_dict)
         else:
             comp_instruction = external_instruction
@@ -563,27 +581,47 @@ class TaskInfoCompo(object):
         (bounded by how many tasks, and how many sample frames in each task)
         @return:
         """
-        stim_frames = [i for i, frame in enumerate(self.frame_info) if len(frame.objs) == 1]
-        relevant_frames = [i for i in stim_frames if -1 not in self.frame_info[i].relative_tasks]
-        if n_distractor > len(relevant_frames):
-            n_distractor = len(relevant_frames)
+        stim_frames = [i for i, frame in enumerate(self.frame_info) if
+                       len(frame.objs) == 1]
+        relevant_frames = [i for i in stim_frames if
+                           -1 not in self.frame_info[i].relative_tasks]
 
-        frames_to_add = sorted(random.sample(relevant_frames, n_distractor))
+        frames_to_add = []
+        n_distractor = min(len(relevant_frames) * 3, n_distractor)
+
+        while n_distractor >= 0:
+            frames_to_add += sorted(
+                random.sample(relevant_frames, min(len(relevant_frames), n_distractor)))
+            n_distractor -= len(relevant_frames)
+        frames_to_add = sorted(frames_to_add)
+
+        print(frames_to_add)
+
         for i in frames_to_add:
             frame = self.frame_info[i]
             attrs = set()
             for task_idx in frame.relative_tasks:
+                if task_idx < 0:
+                    continue
                 task = self.tasks[task_idx]
                 task_epoch = frame.relative_task_epoch_idx[task_idx]
-                attrs = attrs.union(task.get_relevant_attribute(f'last{task.n_frames - task_epoch - 1}'))
+                attrs = attrs.union(
+                    task.get_relevant_attribute(f'last{task.n_frames - task_epoch - 1}'))
+
             attr_new_object = list()
             other_attrs = stim_data.ALL_ATTRS - attrs
             if not other_attrs:  # all attributes are used, cannot add distractor with different attribute
                 continue
 
             for attr_type in other_attrs | {'location'}:
-                existing_obj = frame.objs[0]
-                attr_new_object.append(sg.another_attr(getattr(existing_obj, attr_type)))
+                existing_attr = set()
+                for existing_obj in frame.objs:
+                    existing_attr.add(getattr(existing_obj, attr_type))
+                    new_attr = sg.another_attr(getattr(existing_obj, attr_type))
+                    while new_attr in existing_attr:
+                        new_attr = sg.another_attr(getattr(existing_obj, attr_type))
+
+                attr_new_object.append(new_attr)
 
             self.frame_info.add_distractor(
                 distractor=sg.Object(attrs=attr_new_object, when=i, deletable=True),
@@ -609,7 +647,8 @@ class TaskInfoCompo(object):
         per_task_info_dict, compo_info_dict = self.get_task_info_dict()
 
         imgs = []
-        for i, (epoch, frame) in enumerate(zip(render_stimset(objset, canvas_size, stim_data), self.frame_info)):
+        for i, (epoch, frame) in enumerate(
+                zip(render_stimset(objset, canvas_size, stim_data), self.frame_info)):
             if fixation_cue:
                 # add fixation cues to all frames except for task ending frames
                 if not any('ending' in description for description in frame.description):
